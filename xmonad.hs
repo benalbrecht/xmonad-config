@@ -84,24 +84,24 @@ myLayout = avoidStruts (
 -- Colors and borders
 -- Currently based on the ir_black theme.
 --
-myNormalBorderColor  = "#7c7c7c"
-myFocusedBorderColor = "#ffb6b0"
+myNormalBorderColor  = "#073642"
+myFocusedBorderColor = "#586e75"
 
 -- Colors for text and backgrounds of each tab when in "Tabbed" layout.
 tabConfig = defaultTheme {
-    activeBorderColor = "#7C7C7C",
-    activeTextColor = "#CEFFAC",
-    activeColor = "#000000",
-    inactiveBorderColor = "#7C7C7C",
-    inactiveTextColor = "#EEEEEE",
-    inactiveColor = "#000000"
+    activeBorderColor = "#586e75",
+    activeTextColor = "#fdf6e3",
+    activeColor = "#586e75",
+    inactiveBorderColor = "#002b36",
+    inactiveTextColor = "#657b83",
+    inactiveColor = "#002b36"
 }
 
 -- Color of current window title in xmobar.
-xmobarTitleColor = "#FFB6B0"
+xmobarTitleColor = "#cb4b16"
 
 -- Color of current workspace in xmobar.
-xmobarCurrentWorkspaceColor = "#CEFFAC"
+xmobarCurrentWorkspaceColor = "#859900"
 
 -- Width of the window border in pixels.
 myBorderWidth = 1
@@ -133,7 +133,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Launch dmenu via yeganesh.
   -- Use this to launch programs without a key binding.
   , ((modMask, xK_p),
-     spawn "exe=`dmenu_path_c | yeganesh` && eval \"exec $exe\"")
+     spawn "exe=`dmenu_path | yeganesh` && eval \"exec $exe\"")
 
   -- Take a screenshot in select mode.
   -- After pressing this key binding, click a window, or draw a rectangle with
@@ -359,3 +359,4 @@ defaults = defaultConfig {
     manageHook         = myManageHook,
     startupHook        = myStartupHook
 }
+
