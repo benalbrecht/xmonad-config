@@ -5,6 +5,7 @@
 import System.IO
 import System.Exit
 import XMonad
+--import XMonad.Config.Gnome
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
@@ -18,6 +19,14 @@ import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
+----------------
+--
+-- Additional Keys
+
+xK_XF86AudioMute, xK_XF86AudioRaiseVolume, xK_XF86AudioLowerVolume :: KeySym
+xK_XF86AudioRaiseVolume = 0x1008FF13
+xK_XF86AudioLowerVolume = 0x1008FF11
+xK_XF86AudioMute = 0x1008FF12
 
 ------------------------------------------------------------------------
 -- Terminal
@@ -115,7 +124,7 @@ myBorderWidth = 1
 -- ("right alt"), which does not conflict with emacs keybindings. The
 -- "windows key" is usually mod4Mask.
 --
-myModMask = mod1Mask
+myModMask = mod4Mask
  
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   ----------------------------------------------------------------------
@@ -133,7 +142,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Launch dmenu via yeganesh.
   -- Use this to launch programs without a key binding.
   , ((modMask, xK_p),
-     spawn "exe=`dmenu_path | yeganesh` && eval \"exec $exe\"")
+     spawn "exe=`dmenu_path | /home/ben/.xmonad/bin/yega` && eval \"exec $exe\"")
 
   -- Take a screenshot in select mode.
   -- After pressing this key binding, click a window, or draw a rectangle with
@@ -147,15 +156,15 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      spawn "screenshot")
 
   -- Mute volume.
-  , ((modMask .|. controlMask, xK_m),
+  , ((0, xK_XF86AudioMute),
      spawn "amixer -q set Master toggle")
 
   -- Decrease volume.
-  , ((modMask .|. controlMask, xK_j),
+  , ((0, xK_XF86AudioLowerVolume),
      spawn "amixer -q set Master 10%-")
 
   -- Increase volume.
-  , ((modMask .|. controlMask, xK_k),
+  , ((0, xK_XF86AudioRaiseVolume),
      spawn "amixer -q set Master 10%+")
 
   -- Audio previous.
@@ -169,10 +178,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Audio next.
   , ((0, 0x1008FF17),
      spawn "")
-
-  -- Eject CD tray.
-  , ((0, 0x1008FF2C),
-     spawn "eject -T")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
@@ -319,6 +324,8 @@ myStartupHook = return ()
 ------------------------------------------------------------------------
 -- Run xmonad with all the defaults we set up.
 --
+--main = do
+--    xmonad $ gnomeConfig
 main = do
   xmproc <- spawnPipe "/usr/bin/xmobar ~/.xmonad/xmobar.hs"
   xmonad $ defaults {

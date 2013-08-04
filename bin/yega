@@ -4,5 +4,5 @@
 # http://github.com/vicfryzel/xmonad-config
 
 
-/usr/bin/dmenu -fn 'DejaVu Sans Mono' \
+/home/ben/.cabal/bin/yeganesh -- -fn 'DejaVu Sans Mono' \
   -nb '#002b36' -nf '#657b83' -sb '#586e75' -sf '#fdf6e3'

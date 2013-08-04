@@ -13,7 +13,7 @@ xscreensaver -no-splash &
 
 # Start the system tray
 tray &
-
+xmobar &
 # Start two terminals
 urxvt &
 urxvt &
