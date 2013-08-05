@@ -5,7 +5,8 @@
 import System.IO
 import System.Exit
 import XMonad
---import XMonad.Config.Gnome
+import XMonad.Config.Gnome
+import XMonad.Config.Desktop
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
@@ -252,7 +253,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Quit xmonad.
   , ((modMask .|. shiftMask, xK_q),
-     io (exitWith ExitSuccess))
+--   io (exitWith ExitSuccess))
+     spawn "gnome-session-save --kill")
 
   -- Restart xmonad.
   , ((modMask, xK_q),
@@ -324,20 +326,12 @@ myStartupHook = return ()
 ------------------------------------------------------------------------
 -- Run xmonad with all the defaults we set up.
 --
---main = do
---    xmonad $ gnomeConfig
 main = do
-  xmproc <- spawnPipe "/usr/bin/xmobar ~/.xmonad/xmobar.hs"
   xmonad $ defaults {
-      logHook = dynamicLogWithPP $ xmobarPP {
-            ppOutput = hPutStrLn xmproc
-          , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
-          , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
-          , ppSep = "   "}
-      , manageHook = manageDocks <+> myManageHook
-      , startupHook = setWMName "LG3D"
+        manageHook = manageDocks <+> myManageHook
+      , startupHook = gnomeRegister >> startupHook desktopConfig 
   }
- 
+ --todo more gnome integration
 
 ------------------------------------------------------------------------
 -- Combine it all together
