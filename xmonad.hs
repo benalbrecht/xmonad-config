@@ -20,6 +20,10 @@ import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
+import qualified DBus as D
+import qualified DBus.Client as D
+import qualified Codec.Binary.UTF8.String as UTF8
+
 ----------------
 --
 -- Additional Keys
@@ -326,10 +330,14 @@ myStartupHook = return ()
 ------------------------------------------------------------------------
 -- Run xmonad with all the defaults we set up.
 --
+main :: IO ()
 main = do
+  dbus <- D.connectSession
+  getWellKnownName dbus
   xmonad $ defaults {
         manageHook = manageDocks <+> myManageHook
-      , startupHook = gnomeRegister >> startupHook desktopConfig 
+      , startupHook = gnomeRegister >> startupHook desktopConfig
+      , logHook = dynamicLogWithPP (prettyPrinter dbus)
   }
  --todo more gnome integration
 
@@ -361,3 +369,42 @@ defaults = defaultConfig {
     startupHook        = myStartupHook
 }
 
+prettyPrinter :: D.Client -> PP
+prettyPrinter dbus = defaultPP
+  {  ppOutput   = dbusOutput dbus
+  ,  ppTitle    = pangoSanitize
+  ,  ppCurrent  = pangoColor "green" . wrap "[" "]" . pangoSanitize
+  ,  ppVisible  = pangoColor "yellow" . wrap "[" "]" . pangoSanitize
+  ,  ppHidden   = pangoColor "gray40" . wrap "(" ")" . pangoSanitize
+  ,  ppUrgent   = pangoColor "red"
+  ,  ppLayout   = pangoColor "seaGreen"
+  ,  ppSep      = " "
+  }
+
+getWellKnownName :: D.Client -> IO ()
+getWellKnownName dbus = do
+  D.requestName dbus (D.busName_ "org.xmonad.Log")
+                [D.nameAllowReplacement, D.nameReplaceExisting, D.nameDoNotQueue]
+  return ()
+
+dbusOutput :: D.Client -> String -> IO ()
+dbusOutput dbus str = do
+  let signal = (D.signal (D.objectPath_ "/org/xmonad/Log") (D.interfaceName_ "org.xmonad.Log") (D.memberName_ "Update")) {
+    D.signalBody = [D.toVariant ("<span>" ++ (UTF8.decodeString str) ++ "</span>")]
+    }
+  D.emit dbus signal
+
+pangoColor :: String -> String -> String
+pangoColor fg = wrap left right
+  where
+    left  = "<span foreground=\"" ++ fg ++ "\">"
+    right = "</span>"
+
+pangoSanitize :: String -> String
+pangoSanitize = foldr sanitize ""
+  where
+    sanitize '>'  xs = "&gt;" ++ xs  
+    sanitize '<'  xs = "&lt;" ++ xs
+    sanitize '\"'  xs = "&quot;" ++ xs
+    sanitize '&'  xs = "&amp;" ++ xs
+    sanitize x  xs = x:xs
